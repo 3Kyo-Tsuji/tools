@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カラーピッカー</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container py-3 min-vh-100">
+        <form class="border rounded-2">
+            <div class="input-group w-50 mx-auto my-4">
+                <input type="file" class="form-control" id="file" aria-describedby="inputGroupFileAddon04"
+                    aria-label="Upload">
+            </div>
+            <div class="input-group w-50 mx-auto my-4">
+                <input type="text" id="result" class="form-control">
+                <button id="start-button" type="button" class="btn btn-primary">Pick!!</button>
+            </div>
+        </form>
+        <div id="preview-area" class="preview-row text-center my-4">
+            <img id="preview" class="mw-100 my-4" src="" alt="">
+        </div>
+    </div>
+    <script>
+        document.getElementById('file').addEventListener('change', (e) => {
+            // 存在チェック
+            if (e.target.files.length !== 1) {
+                alert('画像ファイルを選択してください');
+                return;
+            }
+            // データ形式チェック
+            const img = e.target.files[0];
+            if (img.type !== 'image/png' && img.type !== 'image/jpeg') {
+                alert('画像はPNGもしくはJPEG(JPG)形式のファイルを選択してください');
+                return;
+            }
+            // プレビューを更新
+            document.getElementById('preview').src = URL.createObjectURL(img);
+        })
+
+        document.getElementById("start-button").addEventListener("click", () => {
+            const resultElement = document.getElementById("result");
+
+            if (!window.EyeDropper) {
+                resultElement.textContent =
+                    "このブラウザーは EyeDropper API に対応していません";
+                return;
+            }
+
+            const eyeDropper = new EyeDropper();
+
+            eyeDropper
+                .open()
+                .then((result) => {
+                    resultElement.value = result.sRGBHex;
+                })
+                .catch((e) => {
+                    resultElement.value = e;
+                });
+        });
+    </script>
+</body>
+
+</html>
