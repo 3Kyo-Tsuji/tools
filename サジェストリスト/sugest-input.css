@@ -10,3 +10,7 @@
 .suggest-list li:hover {
     background: yellow;
 }
+
+.suggest-list .selected {
+    background: yellow;
+}
