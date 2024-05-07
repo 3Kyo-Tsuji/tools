@@ -1,0 +1,28 @@
+body {
+    margin: 0;
+}
+
+li {
+    height: 100vh;
+    text-align: center;
+}
+
+#first {
+    background: #ff7c7c;
+}
+
+#second {
+    background: #ffe77c;
+}
+
+#third {
+    background: #d1ff7c;
+}
+
+#fourth {
+    background: #7cfff8;
+}
+
+#fifth {
+    background: #b97cff;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自作スワイプSAMPLE(ヘッダーナビゲーション付き)</title>
+    <link rel="stylesheet" href="swipe.css?20240507">
+    <link rel="stylesheet" href="style.css?20240507">
+    <script src="swipe.js?20240507_3"></script>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul id="header-list">
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <ul id="program-list">
+            <li id="first">1</li>
+            <li id="second">2</li>
+            <li id="third">3</li>
+            <li id="fourth">4</li>
+            <li id="fifth">5</li>
+        </ul>
+    </main>
+    <script>
+        swipeWithHeader('program-list', 'header-list');
+    </script>
+</body>
+
+</html>

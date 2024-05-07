@@ -1,0 +1,36 @@
+.swipe {
+    height: 100%;
+    display: flex;
+    padding: 0;
+    margin: 0;
+}
+
+.swipe li {
+    width: 100%;
+    align-content: center;
+    list-style: none;
+}
+
+.scroll-stop {
+    overflow: hidden;
+}
+
+.swipe-header {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+}
+
+.swipe-header li {
+    list-style: none;
+    height: auto;
+    padding: 0 8px;
+}
+
+.swipe-label {
+    height: 2px;
+    background-color: #333;
+}
