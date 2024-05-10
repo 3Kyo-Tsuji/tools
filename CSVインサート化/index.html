@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to SQL</title>
+    <link rel="stylesheet" href="../reset.css">
+    <style>
+        input[type=number] {
+            padding: 4px;
+            width: 2rem;
+            border: 1px solid #999;
+            border-radius: 4px;
+        }
+
+        #data-area {
+            white-space: pre;
+        }
+
+        #data-area div {
+            display: flex;
+        }
+
+        #data-area td {
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        .input {
+            display: flex;
+            flex-direction: column;
+            padding: 4px;
+        }
+
+        .input div {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+
+        .none {
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <input type="file" id="csv" name="csv" accept="text/csv">
+        <input type="number" id="number" value="5">行目
+        <button id="load-btn">読み込み</button>
+        <button id="output-btn" class="none">SQL出力</button>
+    </header>
+    <main>
+        <table id="data-area"></table>
+    </main>
+    <script>
+        const typeList = [
+            'VARCHAR(255)',
+            'TEXT',
+            'INT',
+            'DATE',
+            'DATETIME',
+        ];
+
+        document.getElementById('load-btn').addEventListener('click', () => {
+            document.getElementById('output-btn').classList.remove('none');
+            document.getElementById('load-btn').classList.add('none');
+            const file = document.getElementById('csv').files[0];
+            readFile(file);
+
+            // CSVを読み込む
+            function readFile(file) {
+                const reader = new FileReader();
+
+                // 読み込みが完了したら、画面に内容と入力欄を表示
+                reader.onload = function (event) {
+                    const csvData = event.target.result;
+                    displayDataTable(csvData);
+                };
+
+                // ファイルをテキストとして読み込む
+                reader.readAsText(file);
+            }
+
+            // CSVデータを処理する関数
+            function displayDataTable(csvData) {
+                // CSVデータを行に分割
+                const rows = csvData.split("\n");
+                // 行数取得
+                const num = document.getElementById("number").value;
+                // 指定行をカンマで分割し、配列に変換
+                const data = rows.map(row => row.split(","));
+                // データ型のリストを作成
+                let optionType = "";
+                for (const type of typeList) {
+                    const optionItem = '<option value="' + type + '">' + type + '</option>';
+                    optionType += optionItem;
+                }
+                // データエリアに内容を描画
+                for (let i = 0; i < num; i++) {
+                    const row = data[i];
+                    // 1行目のみ
+                    if (i === 0) {
+                        document.getElementById('data-area').insertAdjacentHTML('beforeend', '<tr id="input-area"></tr>');
+                        for (let i = 0; i < row.length; i++) {
+                            const val = row[i];
+                            // 入力欄作成
+                            document.getElementById("input-area").insertAdjacentHTML('beforeend', '<td><div id="input_' + i + '" class="input"></div></td>');
+                            document.getElementById('input_' + i).insertAdjacentHTML('beforeend', '<input type="text" class="name" placeholder="カラム名"><div><select>' + optionType + '</select><label for="null_' + i + '">NOT NULL<input type="checkbox" class="null" id="null_' + i + '"></label></div><input type="text" class="comment" placeholder="コメント">');
+                        }
+                    }
+                    const id = 'row_' + i;
+                    document.getElementById('data-area').insertAdjacentHTML('beforeend', '<tr class="data-row" id="' + id +'"></tr>');
+                    for (const str of row) {
+                        // 左右から空白と二重引用符を削除
+                        const trim = str.replace(/^"/,'').replace(/"$/,'');
+                        document.getElementById(id).insertAdjacentHTML('beforeend', '<td>' + trim + '</td>');
+                    }
+                }
+                // テキストエリアを作成
+                document.getElementsByTagName('main')[0].insertAdjacentHTML('beforeend', '<textarea id="sql"></textarea>');
+            }
+
+            // SQL出力ボタン
+            document.getElementById("output-btn").addEventListener('click', () => {
+                const table = prompt("テーブル名を入力してください");
+                // カラム名の配列
+                const columns = [];
+                // CREATE分作成
+                const inputArea = document.getElementById('input-area');
+                let create = 'CREATE TABLE ' + table + " (id INT NOT NULL AUTO_INCREMENT COMMENT 'ID', ";
+                for (const child of inputArea.children) {
+                    const elm = child.firstChild;
+                    columns.push(elm.getElementsByClassName('name')[0].value.trim());
+                    let row = elm.getElementsByClassName('name')[0].value + ' ' + elm.getElementsByTagName('select')[0].value + ' ';
+                    if (elm.getElementsByClassName('null')[0].checked) {
+                        row += 'NOT NULL ';
+                    }
+                    row += "COMMENT '" + elm.getElementsByClassName('comment')[0].value + "'," ;
+                    create += row;
+                }
+                create += "create_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日', PRIMARY KEY (id));";
+
+                // INSERT分作成
+                const dataRows = document.getElementsByClassName('data-row');
+                let insert = "";
+                for (const dataRow of dataRows) {
+                    insert += "INSERT INTO " + table + " (";
+                    for (let i = 0; i < columns.length; i++) {
+                        const column = "`" + columns[i] + "`";
+                        insert += column;
+                        if (i !== columns.length - 1) {
+                            insert += ", ";
+                        }
+                    }
+                    insert += ") VALUES (";
+                    const values = dataRow.children;
+                    for (let i = 0; i < values.length; i++) {
+                        const value = "'" + values[i].textContent + "'";
+                        insert += value;
+                        if (i !== values.length - 1) {
+                            insert += ", ";
+                        }
+                    }
+
+                    insert += ");\n";
+                }
+                
+
+                // テキストエリアに出力
+                document.getElementById('sql').textContent = '/* CREATE */\n' + create + '\n/* INSERT */\n' + insert;
+            })
+        })
+    </script>
+</body>
+
+</html>
