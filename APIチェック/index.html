@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIチェッカー</title>
+    <link rel="stylesheet" href="../reset.css">
+    <style>
+        input,
+        select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #999;
+        }
+
+        button {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #999;
+        }
+
+        .header-area,
+        .form-area {
+            padding: 1rem;
+            max-width: 768px;
+            margin: auto;
+        }
+
+        .form-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-area h1 {
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .form-area p {
+            margin-top: 1rem;
+        }
+
+        #url ,
+        #method {
+            margin-top: 1rem;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .header-row input {
+            width: 40%;
+        }
+        
+        .btn-line {
+            margin-top: 1rem;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-area">
+        <h1>APIテスト</h1>
+        <p>必要事項を入力し送信ボタンをクリックすると指定URLのAPIをcURLで叩いた結果を表示します。</p>
+        <input type="text" id="url" placeholder="URL">
+        <select name="method" id="method">
+            <option value="POST">POST</option>
+            <option value="GET">GET</option>
+        </select>
+    </div>
+    <div class="header-area">
+        <p>ヘッダー情報</p>
+        <ul id="header-list">
+            <li class="header-row">
+                <input type="text" class="header" placeholder="ヘッダー" value="Accept">：<input type="text"
+                    class="header-parm" placeholder="ヘッダー値" value="application/json">
+            </li>
+            <li class="header-row">
+                <input type="text" class="header" placeholder="ヘッダー" value="X-Pmoney-Api-Key">：<input type="text"
+                    class="header-parm" placeholder="ヘッダー値" value="HvpGP7hQTgDbWc3V">
+            </li>
+        </ul>
+        <div class="btn-line">
+            <button id="add-header-btn">ヘッダー追加</button>
+            <button id="submit-btn">送信</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ヘッダー追加
+        document.getElementById("add-header-btn").addEventListener('click', () => {
+            document.getElementById("header-list").insertAdjacentHTML('beforeend', '<li class="header-row"><input type="text" class="header" placeholder="ヘッダー">：<input type="text" class="header-parm" placeholder="ヘッダー値"></li>')
+        })
+
+        // 送信ボタン
+        document.getElementById('submit-btn').addEventListener('click', function () {
+            // form を動的に生成
+            let form = document.createElement('form');
+            form.action = 'result.php';
+            form.method = 'POST';
+            document.body.append(form);
+            form.addEventListener('formdata', (e) => {
+                const fd = e.formData;
+                fd.set('url', document.getElementById('url').value);
+                fd.set('method', document.getElementById('method').value);
+
+                const headerList = document.getElementsByClassName('header-row');
+
+                let paramHeaderList = [];
+                for (let i = 0; i < headerList.length; i++) {
+                    const elm = headerList[i];
+                    fd.set('header[' + i + ']', elm.getElementsByClassName('header')[0].value);
+                    fd.set('headerParam[' + i + ']', elm.getElementsByClassName('header-parm')[0].value);
+                }
+            });
+
+            // 実行
+            form.submit();
+        });
+
+    </script>
+</body>
+
+</html>
