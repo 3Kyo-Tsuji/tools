@@ -24,14 +24,14 @@ input[type=radio] {
     accent-color: #66f;
 }
 
-.btn-red {
+.bg-red {
     background: #f66;
 }
 
-.btn-blue {
+.bg-blue {
     background: #66f;
 }
 
-.btn-green {
+.bg-green {
     background: #6f6;
 }
