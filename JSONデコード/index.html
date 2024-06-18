@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONデコード</title>
+    <style>
+        span {
+            margin-left: 1rem;
+        }
+
+        #result-area {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <input type="file" name="json" id="json">
+        <button id="btn">DECODE</button>
+    </div>
+    <div id="result-area"></div>
+    <script>
+        document.getElementById('btn').addEventListener('click', () => {
+            const reader = new FileReader();
+            reader.readAsText(document.getElementById('json').files[0]);
+
+            reader.onload = function (e) {
+                const obj = JSON.parse(e.target.result);
+                const result = document.getElementById('result-area');
+                for (const iterator of obj) {
+                    for (const key in iterator) {
+                        if (Object.hasOwnProperty.call(iterator, key)) {
+                            const element = iterator[key];
+                            result.insertAdjacentHTML('beforeend', '<span>' + key + '：' + element + '</span>');
+                        }
+                    }
+                    result.insertAdjacentHTML('beforeend', '<br>');
+                }
+                
+                // for (var i = 0; i < Object.keys(obj).length; i++) {
+                //     // name.innerHTML += Object.keys(obj)[i] + '<br>';
+                //     console.log(Object.keys(obj)[i]);
+                // }
+                // for (var i = 0; i < Object.values(obj).length; i++) {
+                //     // value.innerHTML += Object.values(obj)[i] + '<br>';
+                //     console.log(Object.values(obj)[i]);
+                // }
+                // for (key in obj) {
+                //     console.log(obj[key]);
+                //     // name_value.innerHTML += key + ' ' + obj[key] + '<br>';
+                // }
+            };
+        })
+    </script>
+</body>
+
+</html>
