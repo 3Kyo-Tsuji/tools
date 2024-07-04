@@ -24,8 +24,8 @@ $all = glob('*');
         }
 
         ul {
-            display: flex;
-            justify-content: flex-start;
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr))
         }
 
         li {
@@ -48,6 +48,7 @@ $all = glob('*');
 
         @media screen and (max-width: 768px) {
             ul {
+                display: flex;
                 flex-direction: column;
             }
         }
