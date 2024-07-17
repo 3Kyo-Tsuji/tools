@@ -6,12 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSONデコード</title>
     <style>
-        span {
-            margin-left: 1rem;
+        table {
+            margin-top: 1rem;
+            border-collapse: collapse;
         }
 
-        #result-area {
-            margin-top: 1rem;
+        th {
+            border: 1px #999 solid;
+            background: #a1ecff;
+        }
+
+        td {
+            padding: 4px;
+            border: 1px #999 solid;
+        }
+
+        table td {
+            background: #eee;
+        }
+
+        table tr:nth-child(odd) td {
+            background: #fff;
         }
     </style>
 </head>
@@ -21,37 +36,34 @@
         <input type="file" name="json" id="json">
         <button id="btn">DECODE</button>
     </div>
-    <div id="result-area"></div>
+    <table>
+        <tbody id="result-area"></tbody>
+    </table>
     <script>
         document.getElementById('btn').addEventListener('click', () => {
             const reader = new FileReader();
             reader.readAsText(document.getElementById('json').files[0]);
 
             reader.onload = function (e) {
-                const obj = JSON.parse(e.target.result);
+                const object = JSON.parse(e.target.result);
                 const result = document.getElementById('result-area');
-                for (const iterator of obj) {
-                    for (const key in iterator) {
-                        if (Object.hasOwnProperty.call(iterator, key)) {
-                            const element = iterator[key];
-                            result.insertAdjacentHTML('beforeend', '<span>' + key + '：' + element + '</span>');
+                result.innerHTML = '';
+
+                for (const key in object) {
+                    const element = object[key];
+                    if (key == 0) {
+                        let th = '';
+                        for (const key2 in element) {
+                            th = th + '<th>' + key2 + '</th>';
                         }
+                        result.insertAdjacentHTML('beforeend', '<tr>' + th + '</tr>');
                     }
-                    result.insertAdjacentHTML('beforeend', '<br>');
+                    let td = '';
+                    for (const key2 in element) {
+                        td = td + '<td>' + element[key2] + '</td>';
+                    }
+                    result.insertAdjacentHTML('beforeend', '<tr>' + td + '</tr>');
                 }
-                
-                // for (var i = 0; i < Object.keys(obj).length; i++) {
-                //     // name.innerHTML += Object.keys(obj)[i] + '<br>';
-                //     console.log(Object.keys(obj)[i]);
-                // }
-                // for (var i = 0; i < Object.values(obj).length; i++) {
-                //     // value.innerHTML += Object.values(obj)[i] + '<br>';
-                //     console.log(Object.values(obj)[i]);
-                // }
-                // for (key in obj) {
-                //     console.log(obj[key]);
-                //     // name_value.innerHTML += key + ' ' + obj[key] + '<br>';
-                // }
             };
         })
     </script>
