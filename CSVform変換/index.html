@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV→Form変換</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="bootstrap.min.js"></script>
+    <style>
+        form {
+            padding: .5rem;
+        }
+
+        form label {
+            margin-right: .5rem;
+            margin-bottom: .5rem;
+        }
+
+        form textarea {
+            display: block;
+            margin-left: 3rem;
+        }
+
+        form input[type=radio],
+        form input[type=checkbox] {
+            margin-right: 4px;
+        }
+
+        #output-btn {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-4">
+        <h1 class='fs-3 mb-3 text-center'>CSV→Form変換</h1>
+        <div class='text-end'>
+            <a href='sample.csv' download>サンプルCSVをダウンロード</a>
+        </div>
+        <input type="file" name='file' class="form-control" id="import-excel">
+        <p class='mt-4 d-none'>プレビュー</p>
+        <div id='form-area'>
+            <form action=""></form>
+        </div>
+        <div class='mt-4 text-end'>
+            <button type="button" id='output-btn' class="btn btn-primary">出力</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('import-excel').addEventListener('change', (e) => {
+            document.querySelector('#form-area form').innerHTML = '';
+            const reader = new FileReader();
+            reader.readAsText(e.target.files[0]);
+            reader.addEventListener('load', function () {
+                const lines = reader.result.split('\r\n');
+                for (const key in lines) {
+                    // 1行目はヘッダー行なので飛ばす
+                    if (key == 0) {
+                        continue;
+                    }
+                    // 1行ずつ処理
+                    const row = lines[key];
+                    const split = row.split(',');
+                    // 空白行は処理しない
+                    if (row != '') {
+                        // カラム数がおかしい場合は中止
+                        if (split.length != 6) {
+                            document.querySelector('#form-area form').innerHTML = '';
+                            const num = Number(key) + 1;
+                            alert(num + '行目：不正なデータです');
+                            return false;
+                        }
+
+                        const type = split[0];
+                        // 外側のdivを作成
+                        const div = document.createElement("div");
+                        if (type === 'テキストボックス') {
+                            const label = document.createElement("label");
+                            label.textContent = split[1];
+                            label.htmlFor = split[2];
+                            const input = document.createElement("input");
+                            input.type = "text";
+                            input.id = split[2];
+                            if (split[3] !== '') {
+                                input.classList.add(split[3]);
+                            }
+                            input.name = split[4];
+                            input.placeholder = split[5];
+                            div.appendChild(label);
+                            div.appendChild(input);
+                            // divをformに追加
+                            document.querySelector('#form-area form').appendChild(div);
+                        } else if (type === 'テキストエリア') {
+                            const label = document.createElement("label");
+                            label.textContent = split[1];
+                            label.htmlFor = split[2];
+                            const input = document.createElement("textarea");
+                            input.type = "text";
+                            input.id = split[2];
+                            if (split[3] !== '') {
+                                input.classList.add(split[3]);
+                            }
+                            input.name = split[4];
+                            input.placeholder = split[5];
+                            div.appendChild(label);
+                            div.appendChild(input);
+                            // divをformに追加
+                            document.querySelector('#form-area form').appendChild(div);
+                        } else if (type === 'Eメール') {
+                            const label = document.createElement("label");
+                            label.textContent = split[1];
+                            label.htmlFor = split[2];
+                            const input = document.createElement("input");
+                            input.type = "email";
+                            input.id = split[2];
+                            if (split[3] !== '') {
+                                input.classList.add(split[3]);
+                            }
+                            input.name = split[4];
+                            input.placeholder = split[5];
+                            div.appendChild(label);
+                            div.appendChild(input);
+                            // divをformに追加
+                            document.querySelector('#form-area form').appendChild(div);
+                        } else if (type === 'ラジオボタン') {
+                            const label = document.createElement("label");
+                            label.textContent = split[1];
+                            const radioDiv = document.createElement("div");
+                            radioDiv.classList.add('radio-line');
+                            radioDiv.dataset.name = split[4];
+                            if (split[3] !== '') {
+                                input.classList.add(split[3]);
+                            }
+                            div.appendChild(label);
+                            div.appendChild(radioDiv);
+                            // divをformに追加
+                            document.querySelector('#form-area form').appendChild(div);
+                        } else if (type === 'チェックボックス') {
+                            const label = document.createElement("label");
+                            label.textContent = split[1];
+                            const radioDiv = document.createElement("div");
+                            radioDiv.classList.add('check-line');
+                            radioDiv.dataset.name = split[4];
+                            if (split[3] !== '') {
+                                input.classList.add(split[3]);
+                            }
+                            div.appendChild(label);
+                            div.appendChild(radioDiv);
+                            // divをformに追加
+                            document.querySelector('#form-area form').appendChild(div);
+                        } else if (type === 'セレクトボックス') {
+                            const label = document.createElement("label");
+                            label.textContent = split[1];
+                            const select = document.createElement("select");
+                            select.id = split[2];
+                            if (split[3] !== '') {
+                                input.classList.add(split[3]);
+                            }
+                            select.dataset.name = split[4];
+                            select.name = split[4];
+                            div.appendChild(label);
+                            div.appendChild(select);
+                            // divをformに追加
+                            document.querySelector('#form-area form').appendChild(div);
+                        } else if (type === '') {
+                            for (const div of document.querySelectorAll('#form-area form div, #form-area form select')) {
+                                if (div.dataset.name == split[4]) {
+                                    // ラジオボタン
+                                    if (div.classList.contains('radio-line')) {
+                                        const label = document.createElement("label");
+                                        label.textContent = split[1];
+                                        label.htmlFor = split[2];
+                                        const input = document.createElement("input");
+                                        input.type = "radio";
+                                        input.id = split[2];
+                                        if (split[3] !== '') {
+                                            input.classList.add(split[3]);
+                                        }
+                                        input.name = split[4];
+                                        input.value = split[5];
+                                        div.appendChild(input);
+                                        div.appendChild(label);
+                                    } else if (div.classList.contains('check-line')) {
+                                        const label = document.createElement("label");
+                                        label.textContent = split[1];
+                                        label.htmlFor = split[2];
+                                        const input = document.createElement("input");
+                                        input.type = "checkbox";
+                                        input.id = split[2];
+                                        if (split[3] !== '') {
+                                            input.classList.add(split[3]);
+                                        }
+                                        input.name = split[4];
+                                        input.value = split[5];
+                                        div.appendChild(input);
+                                        div.appendChild(label);
+                                    } else if (div.tagName == 'SELECT') {
+                                        const option = document.createElement("option");
+                                        option.textContent = split[1];
+                                        option.id = split[2];
+                                        if (split[3] !== '') {
+                                            option.classList.add(split[3]);
+                                        }
+                                        option.name = split[4];
+                                        option.value = split[5];
+                                        div.appendChild(option);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                document.getElementsByClassName('d-none')[0].classList.remove('d-none');
+                document.getElementById('output-btn').style.display = 'inline';
+            })
+        })
+
+        document.getElementById('output-btn').addEventListener('click', () => {
+            const html = document.getElementById('form-area').innerHTML.trim();
+
+            //BOMを付与する（Excelでの文字化け対策）
+            const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+            const blob = new Blob([bom, html], {
+                type: 'text/csv'
+            });
+            //BlobからオブジェクトURLを作成する
+            const url = (window.URL || window.webkitURL).createObjectURL(blob);
+            //ダウンロード用にリンクを作成する
+            const download = document.createElement('a');
+            //リンク先に上記で生成したURLを指定する
+            download.href = url;
+            //download属性にファイル名を指定する
+            download.download = 'form.html';
+            //作成したリンクをクリックしてダウンロードを実行する
+            download.click();
+            //createObjectURLで作成したオブジェクトURLを開放する
+            (window.URL || window.webkitURL).revokeObjectURL(url);
+        })
+    </script>
+</body>
+
+</html>
